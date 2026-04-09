@@ -1,0 +1,6 @@
+{
+  "name": "libentry.so",
+  "version": "1.0.0",
+  "description": "Type definitions for the tgui-winit-ohos shell native bridge",
+  "types": "./index.d.ts"
+}

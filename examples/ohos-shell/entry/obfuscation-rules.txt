@@ -1,0 +1,1 @@
+# No obfuscation rules for the smoke shell.

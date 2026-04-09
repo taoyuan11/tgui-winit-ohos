@@ -1,0 +1,18 @@
+[package]
+name = "ohos-smoke"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lib]
+crate-type = ["staticlib", "rlib"]
+
+[dependencies]
+dpi.workspace = true
+pollster.workspace = true
+raw-window-handle.workspace = true
+wgpu.workspace = true
+tgui-winit-ohos = { path = "../.." }
+winit-core.workspace = true

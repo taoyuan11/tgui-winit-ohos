@@ -1,0 +1,9 @@
+/target
+/.idea
+/.vscode
+/.DS_Store
+Cargo.lock
+/examples/ohos-shell/.hvigor
+/examples/ohos-shell/oh_modules
+/examples/ohos-shell/entry/.cxx
+/examples/ohos-shell/entry/build

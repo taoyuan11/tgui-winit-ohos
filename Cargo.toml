@@ -1,0 +1,53 @@
+[workspace]
+members = [
+    ".",
+    "examples/ohos-smoke",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+license = "Apache-2.0"
+repository = "https://github.com/taoyuan11/tgui-winit-ohos"
+rust-version = "1.85"
+version = "0.0.1"
+
+[workspace.dependencies]
+dpi = "0.1.2"
+raw-window-handle = { version = "0.6.2", features = ["std"] }
+smol_str = "0.3"
+tracing = { version = "0.1.40", default-features = false }
+winit-core = "0.31.0-beta.2"
+keyboard-types = "0.8.0"
+bitflags = "2"
+pollster = "0.4"
+wgpu = "29.0.1"
+
+[package]
+name = "tgui-winit-ohos"
+description = "OpenHarmony backend for winit-core built on ArkUI NativeXComponent"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+readme = "README.md"
+homepage = "https://github.com/taoyuan11/tgui-winit-ohos"
+documentation = "https://docs.rs/tgui-winit-ohos"
+keywords = ["openharmony", "ohos", "winit", "arkui", "gui"]
+exclude = ["examples/ohos-shell/**"]
+
+[features]
+default = []
+serde = ["winit-core/serde"]
+
+[dependencies]
+bitflags.workspace = true
+dpi.workspace = true
+keyboard-types.workspace = true
+raw-window-handle.workspace = true
+smol_str.workspace = true
+tracing.workspace = true
+winit-core.workspace = true
+
+[dev-dependencies]
