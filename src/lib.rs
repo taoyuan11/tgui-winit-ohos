@@ -35,6 +35,7 @@ impl ActiveEventLoopExtOhos for dyn CoreActiveEventLoop + '_ {
 pub trait WindowExtOhos {
     fn xcomponent_ptr(&self) -> *mut c_void;
     fn native_window_ptr(&self) -> *mut c_void;
+    fn font_scale(&self) -> f64;
 }
 
 impl WindowExtOhos for dyn CoreWindow + '_ {
@@ -50,6 +51,13 @@ impl WindowExtOhos for dyn CoreWindow + '_ {
             .cast_ref::<crate::event_loop::Window>()
             .expect("Window is not an OHOS backend instance");
         window.native_window_ptr()
+    }
+
+    fn font_scale(&self) -> f64 {
+        let window = self
+            .cast_ref::<crate::event_loop::Window>()
+            .expect("Window is not an OHOS backend instance");
+        window.font_scale()
     }
 }
 
@@ -78,6 +86,7 @@ macro_rules! export_ohos_winit_app {
             width: u32,
             height: u32,
             scale_factor: f64,
+            font_scale: f64,
         ) {
             unsafe {
                 $crate::ffi::runtime_surface_created(
@@ -87,6 +96,7 @@ macro_rules! export_ohos_winit_app {
                     width,
                     height,
                     scale_factor,
+                    font_scale,
                 )
             }
         }
@@ -99,6 +109,7 @@ macro_rules! export_ohos_winit_app {
             width: u32,
             height: u32,
             scale_factor: f64,
+            font_scale: f64,
         ) {
             unsafe {
                 $crate::ffi::runtime_surface_changed(
@@ -108,6 +119,7 @@ macro_rules! export_ohos_winit_app {
                     width,
                     height,
                     scale_factor,
+                    font_scale,
                 )
             }
         }
@@ -153,9 +165,7 @@ macro_rules! export_ohos_winit_app {
             repeat: bool,
             device_id: i64,
         ) {
-            unsafe {
-                $crate::ffi::runtime_key(runtime.cast(), action, key_code, repeat, device_id)
-            }
+            unsafe { $crate::ffi::runtime_key(runtime.cast(), action, key_code, repeat, device_id) }
         }
 
         #[unsafe(no_mangle)]

@@ -91,11 +91,17 @@ pub unsafe fn runtime_surface_created(
     width: u32,
     height: u32,
     scale_factor: f64,
+    font_scale: f64,
 ) {
     if let Some(runtime) = unsafe { runtime_ref(runtime) } {
-        runtime
-            .app
-            .notify_surface_created(xcomponent, native_window, width, height, scale_factor);
+        runtime.app.notify_surface_created(
+            xcomponent,
+            native_window,
+            width,
+            height,
+            scale_factor,
+            font_scale,
+        );
     }
 }
 
@@ -109,11 +115,17 @@ pub unsafe fn runtime_surface_changed(
     width: u32,
     height: u32,
     scale_factor: f64,
+    font_scale: f64,
 ) {
     if let Some(runtime) = unsafe { runtime_ref(runtime) } {
-        runtime
-            .app
-            .notify_surface_changed(xcomponent, native_window, width, height, scale_factor);
+        runtime.app.notify_surface_changed(
+            xcomponent,
+            native_window,
+            width,
+            height,
+            scale_factor,
+            font_scale,
+        );
     }
 }
 

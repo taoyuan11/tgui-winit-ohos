@@ -54,6 +54,7 @@ pub(crate) struct SurfaceEvent {
     pub width: u32,
     pub height: u32,
     pub scale_factor: f64,
+    pub font_scale: f64,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -223,6 +224,7 @@ impl OhosApp {
         width: u32,
         height: u32,
         scale_factor: f64,
+        font_scale: f64,
     ) {
         self.push(HostEvent::SurfaceCreated(SurfaceEvent {
             xcomponent: xcomponent as usize,
@@ -230,6 +232,7 @@ impl OhosApp {
             width,
             height,
             scale_factor,
+            font_scale,
         }));
     }
 
@@ -240,6 +243,7 @@ impl OhosApp {
         width: u32,
         height: u32,
         scale_factor: f64,
+        font_scale: f64,
     ) {
         self.push(HostEvent::SurfaceChanged(SurfaceEvent {
             xcomponent: xcomponent as usize,
@@ -247,6 +251,7 @@ impl OhosApp {
             width,
             height,
             scale_factor,
+            font_scale,
         }));
     }
 

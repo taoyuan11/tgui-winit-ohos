@@ -1,6 +1,0 @@
-{
-  "modelVersion": "5.0.0",
-  "description": "Stage shell for the tgui-winit-ohos smoke demo",
-  "dependencies": {},
-  "devDependencies": {}
-}

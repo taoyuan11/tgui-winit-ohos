@@ -156,6 +156,7 @@ struct WindowInner {
     native_window: Option<usize>,
     surface_size: PhysicalSize<u32>,
     scale_factor: f64,
+    font_scale: f64,
     focused: bool,
     occluded: bool,
     window_created: bool,
@@ -186,6 +187,7 @@ impl SharedWindowState {
                 native_window: None,
                 surface_size: PhysicalSize::new(0, 0),
                 scale_factor: 1.0,
+                font_scale: 1.0,
                 focused: false,
                 occluded: false,
                 window_created: false,
@@ -402,6 +404,8 @@ impl EventLoop {
             state.redraw_requested = false;
             state.frame_ready = false;
             state.mouse_inside = false;
+            state.scale_factor = 1.0;
+            state.font_scale = 1.0;
             state.pressed_fingers.clear();
             true
         };
@@ -917,6 +921,10 @@ impl Window {
             .map(|ptr| ptr as *mut c_void)
             .unwrap_or(std::ptr::null_mut())
     }
+
+    pub fn font_scale(&self) -> f64 {
+        self.shared.inner.lock().unwrap().font_scale
+    }
 }
 
 impl rwh_06::HasDisplayHandle for Window {
@@ -1163,11 +1171,20 @@ fn sanitize_scale_factor(scale_factor: f64) -> f64 {
     }
 }
 
+fn sanitize_font_scale(font_scale: f64) -> f64 {
+    if font_scale.is_finite() && font_scale > 0.0 {
+        font_scale
+    } else {
+        1.0
+    }
+}
+
 fn update_surface_state(state: &mut WindowInner, event: SurfaceEvent) {
     state.xcomponent = (event.xcomponent != 0).then_some(event.xcomponent);
     state.native_window = (event.native_window != 0).then_some(event.native_window);
     state.surface_size = PhysicalSize::new(event.width, event.height);
     state.scale_factor = sanitize_scale_factor(event.scale_factor);
+    state.font_scale = sanitize_font_scale(event.font_scale);
 }
 
 fn min_timeout(lhs: Option<Duration>, rhs: Option<Duration>) -> Option<Duration> {
@@ -1308,7 +1325,14 @@ mod tests {
         let mut event_loop = build_event_loop(app.clone());
         let mut recording = RecordingApp::default();
 
-        app.notify_surface_created(1usize as *mut c_void, 2usize as *mut c_void, 640, 480, 2.0);
+        app.notify_surface_created(
+            1usize as *mut c_void,
+            2usize as *mut c_void,
+            640,
+            480,
+            2.0,
+            1.35,
+        );
         assert_eq!(
             event_loop.pump_app_events(Some(Duration::ZERO), &mut recording),
             PumpStatus::Continue
@@ -1329,6 +1353,7 @@ mod tests {
             let window = recording.window.as_ref().unwrap();
             assert_eq!(window.native_window_ptr() as usize, 2);
             assert_eq!(window.xcomponent_ptr() as usize, 1);
+            assert!((window.font_scale() - 1.35).abs() < f64::EPSILON);
             assert!(window.window_handle().is_ok());
         }
 
@@ -1353,7 +1378,14 @@ mod tests {
         let mut event_loop = build_event_loop(app.clone());
         let mut recording = RecordingApp::default();
 
-        app.notify_surface_created(1usize as *mut c_void, 2usize as *mut c_void, 200, 120, 1.0);
+        app.notify_surface_created(
+            1usize as *mut c_void,
+            2usize as *mut c_void,
+            200,
+            120,
+            1.0,
+            1.0,
+        );
         let _ = event_loop.pump_app_events(Some(Duration::ZERO), &mut recording);
         recording.events.clear();
 
@@ -1438,18 +1470,39 @@ mod tests {
         let mut event_loop = build_event_loop(app.clone());
         let mut recording = RecordingApp::default();
 
-        app.notify_surface_created(1usize as *mut c_void, 2usize as *mut c_void, 640, 480, 1.0);
+        app.notify_surface_created(
+            1usize as *mut c_void,
+            2usize as *mut c_void,
+            640,
+            480,
+            1.0,
+            1.0,
+        );
         let _ = event_loop.pump_app_events(Some(Duration::ZERO), &mut recording);
         recording.events.clear();
 
-        app.notify_surface_created(1usize as *mut c_void, 2usize as *mut c_void, 640, 480, 1.0);
+        app.notify_surface_created(
+            1usize as *mut c_void,
+            2usize as *mut c_void,
+            640,
+            480,
+            1.0,
+            1.0,
+        );
         let _ = event_loop.pump_app_events(Some(Duration::ZERO), &mut recording);
         assert_eq!(recording.resumed, 1);
         assert_eq!(recording.can_create_surfaces, 1);
 
         app.notify_surface_destroyed();
         let _ = event_loop.pump_app_events(Some(Duration::ZERO), &mut recording);
-        app.notify_surface_created(3usize as *mut c_void, 4usize as *mut c_void, 320, 240, 1.0);
+        app.notify_surface_created(
+            3usize as *mut c_void,
+            4usize as *mut c_void,
+            320,
+            240,
+            1.0,
+            1.0,
+        );
         let _ = event_loop.pump_app_events(Some(Duration::ZERO), &mut recording);
 
         assert_eq!(recording.resumed, 2);
@@ -1464,7 +1517,14 @@ mod tests {
         let mut event_loop = build_event_loop(app.clone());
         let mut recording = RecordingApp::default();
 
-        app.notify_surface_created(1usize as *mut c_void, 2usize as *mut c_void, 200, 120, 1.0);
+        app.notify_surface_created(
+            1usize as *mut c_void,
+            2usize as *mut c_void,
+            200,
+            120,
+            1.0,
+            1.0,
+        );
         let _ = event_loop.pump_app_events(Some(Duration::ZERO), &mut recording);
         recording.events.clear();
 
@@ -1530,7 +1590,14 @@ mod tests {
 
         let mut event_loop = build_event_loop(app.clone());
         let mut recording = RecordingApp::default();
-        app.notify_surface_created(7usize as *mut c_void, 9usize as *mut c_void, 32, 32, 1.0);
+        app.notify_surface_created(
+            7usize as *mut c_void,
+            9usize as *mut c_void,
+            32,
+            32,
+            1.0,
+            1.0,
+        );
         let _ = event_loop.pump_app_events(Some(Duration::ZERO), &mut recording);
         assert!(recording.window.as_ref().unwrap().window_handle().is_ok());
     }
@@ -1549,7 +1616,14 @@ mod tests {
         let mut event_loop = build_event_loop(app.clone());
         let mut recording = RecordingApp::default();
 
-        app.notify_surface_created(1usize as *mut c_void, 2usize as *mut c_void, 200, 120, 1.0);
+        app.notify_surface_created(
+            1usize as *mut c_void,
+            2usize as *mut c_void,
+            200,
+            120,
+            1.0,
+            1.0,
+        );
         let _ = event_loop.pump_app_events(Some(Duration::ZERO), &mut recording);
         recording.events.clear();
 

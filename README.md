@@ -26,6 +26,7 @@ Supported well:
 - Single window creation
 - Surface create/change/destroy lifecycle
 - `raw-window-handle` for OHOS display and native window handles
+- OHOS-specific font scale access through `WindowExtOhos::font_scale()`
 - Pointer, mouse, wheel, focus, visibility, and keyboard input
 - Redraw requests gated by host frame callbacks
 
@@ -73,6 +74,9 @@ The OHOS shell should continue to forward `NativeXComponent` callbacks into `Oho
 - `notify_touch`
 - `notify_mouse`
 - `notify_key`
+
+When forwarding surface lifecycle, also include the current system font scale so Rust code can
+query it later through `WindowExtOhos::font_scale()`.
 
 `Window::request_redraw()` now records a redraw request and waits for a host frame callback
 before emitting `WindowEvent::RedrawRequested`, which keeps redraw pacing stable.
