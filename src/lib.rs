@@ -4,6 +4,8 @@ mod app;
 mod event_loop;
 pub mod ffi;
 mod keycodes;
+#[doc(hidden)]
+pub mod log;
 
 pub use crate::app::{
     OhosApp, OhosKeyAction, OhosMouseAction, OhosMouseButton, OhosPointerSource, OhosTouchAction,
@@ -11,6 +13,10 @@ pub use crate::app::{
 pub use crate::event_loop::{
     ActiveEventLoop, EventLoop, EventLoopBuilder, EventLoopBuilderExtOhos,
     PlatformSpecificEventLoopAttributes, PlatformSpecificWindowAttributes, Window,
+};
+pub use crate::log::{
+    DEFAULT_LOG_DOMAIN, DEFAULT_LOG_TAG, LOG_PREFIX, OhosLogLevel, deveco_log, deveco_log_with,
+    deveco_log_with_level,
 };
 pub use winit_core::event_loop::EventLoopProxy;
 
@@ -35,6 +41,7 @@ impl ActiveEventLoopExtOhos for dyn CoreActiveEventLoop + '_ {
 pub trait WindowExtOhos {
     fn xcomponent_ptr(&self) -> *mut c_void;
     fn native_window_ptr(&self) -> *mut c_void;
+    fn density_scale(&self) -> f64;
     fn font_scale(&self) -> f64;
 }
 
@@ -51,6 +58,13 @@ impl WindowExtOhos for dyn CoreWindow + '_ {
             .cast_ref::<crate::event_loop::Window>()
             .expect("Window is not an OHOS backend instance");
         window.native_window_ptr()
+    }
+
+    fn density_scale(&self) -> f64 {
+        let window = self
+            .cast_ref::<crate::event_loop::Window>()
+            .expect("Window is not an OHOS backend instance");
+        window.density_scale()
     }
 
     fn font_scale(&self) -> f64 {
@@ -76,6 +90,11 @@ macro_rules! export_ohos_winit_app {
         #[unsafe(no_mangle)]
         pub unsafe extern "C" fn ohos_winit_runtime_free(runtime: *mut ::std::ffi::c_void) {
             unsafe { $crate::ffi::runtime_free(runtime.cast()) }
+        }
+
+        #[unsafe(no_mangle)]
+        pub unsafe extern "C" fn ohos_winit_runtime_log(message: *const ::std::ffi::c_char) {
+            unsafe { $crate::log::deveco_log_from_c(message) }
         }
 
         #[unsafe(no_mangle)]

@@ -922,6 +922,10 @@ impl Window {
             .unwrap_or(std::ptr::null_mut())
     }
 
+    pub fn density_scale(&self) -> f64 {
+        self.shared.inner.lock().unwrap().scale_factor
+    }
+
     pub fn font_scale(&self) -> f64 {
         self.shared.inner.lock().unwrap().font_scale
     }
@@ -1353,6 +1357,7 @@ mod tests {
             let window = recording.window.as_ref().unwrap();
             assert_eq!(window.native_window_ptr() as usize, 2);
             assert_eq!(window.xcomponent_ptr() as usize, 1);
+            assert!((window.density_scale() - 2.0).abs() < f64::EPSILON);
             assert!((window.font_scale() - 1.35).abs() < f64::EPSILON);
             assert!(window.window_handle().is_ok());
         }

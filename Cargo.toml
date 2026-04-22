@@ -1,7 +1,6 @@
 [workspace]
 members = [
     ".",
-    "examples/tttt1",
 ]
 resolver = "2"
 
@@ -10,7 +9,7 @@ edition = "2024"
 license = "Apache-2.0"
 repository = "https://github.com/taoyuan11/tgui-winit-ohos"
 rust-version = "1.85"
-version = "0.4.0"
+version = "0.4.1"
 
 [workspace.dependencies]
 dpi = "0.1.2"
@@ -21,7 +20,6 @@ winit-core = "0.31.0-beta.2"
 keyboard-types = "0.8.0"
 bitflags = "2"
 pollster = "0.4"
-wgpu = "29.0.1"
 
 [package]
 name = "tgui-winit-ohos"

@@ -26,6 +26,7 @@ Supported well:
 - Single window creation
 - Surface create/change/destroy lifecycle
 - `raw-window-handle` for OHOS display and native window handles
+- OHOS-specific density scale access through `WindowExtOhos::density_scale()`
 - OHOS-specific font scale access through `WindowExtOhos::font_scale()`
 - Pointer, mouse, wheel, focus, visibility, and keyboard input
 - Redraw requests gated by host frame callbacks
@@ -75,8 +76,9 @@ The OHOS shell should continue to forward `NativeXComponent` callbacks into `Oho
 - `notify_mouse`
 - `notify_key`
 
-When forwarding surface lifecycle, also include the current system font scale so Rust code can
-query it later through `WindowExtOhos::font_scale()`.
+When forwarding surface lifecycle, also include the current screen density scale and system font
+scale so Rust code can query them later through `WindowExtOhos::density_scale()` and
+`WindowExtOhos::font_scale()`.
 
 `Window::request_redraw()` now records a redraw request and waits for a host frame callback
 before emitting `WindowEvent::RedrawRequested`, which keeps redraw pacing stable.
@@ -103,6 +105,17 @@ export_ohos_winit_app!(MyApp::default);
 When `cargo-ohos-app` detects a dependency on `tgui-winit-ohos`, it can generate an
 `XComponent + NativeXComponent` shell that forwards lifecycle and input callbacks into these
 exports automatically.
+
+The crate's DevEco log helper is aligned with that shell now and writes through
+`cargo-ohos-app`'s `cargo_ohos_app_hilog(level, domain, tag, message)` bridge instead of
+calling `hilog_ndk.z` directly. You can keep using the high-level helper:
+
+```rust
+use tgui_winit_ohos::{OhosLogLevel, deveco_log, deveco_log_with_level};
+
+deveco_log("surface created");
+deveco_log_with_level(OhosLogLevel::Warn, "frame skipped");
+```
 
 The recommended end-to-end packaging example now lives in the companion
 `harmony-app/examples/winit-smoke` project, where `cargo-ohos-app` packages the app as an
