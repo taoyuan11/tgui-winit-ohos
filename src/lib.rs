@@ -104,7 +104,7 @@ macro_rules! export_ohos_winit_app {
             native_window: *mut ::std::ffi::c_void,
             width: u32,
             height: u32,
-            scale_factor: f64,
+            density_scale: f64,
             font_scale: f64,
         ) {
             unsafe {
@@ -114,7 +114,7 @@ macro_rules! export_ohos_winit_app {
                     native_window,
                     width,
                     height,
-                    scale_factor,
+                    density_scale,
                     font_scale,
                 )
             }
@@ -127,7 +127,7 @@ macro_rules! export_ohos_winit_app {
             native_window: *mut ::std::ffi::c_void,
             width: u32,
             height: u32,
-            scale_factor: f64,
+            density_scale: f64,
             font_scale: f64,
         ) {
             unsafe {
@@ -137,7 +137,7 @@ macro_rules! export_ohos_winit_app {
                     native_window,
                     width,
                     height,
-                    scale_factor,
+                    density_scale,
                     font_scale,
                 )
             }

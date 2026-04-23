@@ -425,7 +425,7 @@ impl EventLoop {
         app: &mut A,
     ) {
         let new_size = PhysicalSize::new(event.width, event.height);
-        let new_scale = sanitize_scale_factor(event.scale_factor);
+        let new_scale = sanitize_density_scale(event.density_scale);
 
         if (new_scale - previous_scale).abs() > f64::EPSILON {
             let requested_size = Arc::new(Mutex::new(new_size));
@@ -1167,9 +1167,9 @@ impl Drop for EventLoop {
     }
 }
 
-fn sanitize_scale_factor(scale_factor: f64) -> f64 {
-    if scale_factor.is_finite() && scale_factor > 0.0 {
-        scale_factor
+fn sanitize_density_scale(density_scale: f64) -> f64 {
+    if density_scale.is_finite() && density_scale > 0.0 {
+        density_scale
     } else {
         1.0
     }
@@ -1187,7 +1187,7 @@ fn update_surface_state(state: &mut WindowInner, event: SurfaceEvent) {
     state.xcomponent = (event.xcomponent != 0).then_some(event.xcomponent);
     state.native_window = (event.native_window != 0).then_some(event.native_window);
     state.surface_size = PhysicalSize::new(event.width, event.height);
-    state.scale_factor = sanitize_scale_factor(event.scale_factor);
+    state.scale_factor = sanitize_density_scale(event.density_scale);
     state.font_scale = sanitize_font_scale(event.font_scale);
 }
 
@@ -1374,6 +1374,77 @@ mod tests {
             recording.window.as_ref().unwrap().window_handle(),
             Err(HandleError::Unavailable)
         ));
+    }
+
+    #[test]
+    fn host_scale_updates_stay_in_sync_with_cached_window_metrics() {
+        let _guard = test_guard();
+        let app = OhosApp::new();
+        let mut event_loop = build_event_loop(app.clone());
+        let mut recording = RecordingApp::default();
+
+        app.notify_surface_created(
+            1usize as *mut c_void,
+            2usize as *mut c_void,
+            640,
+            480,
+            1.0,
+            1.0,
+        );
+        let _ = event_loop.pump_app_events(Some(Duration::ZERO), &mut recording);
+        recording.events.clear();
+
+        app.notify_surface_changed(
+            1usize as *mut c_void,
+            2usize as *mut c_void,
+            640,
+            480,
+            1.8,
+            1.0,
+        );
+        assert_eq!(
+            event_loop.pump_app_events(Some(Duration::ZERO), &mut recording),
+            PumpStatus::Continue
+        );
+
+        assert!(matches!(
+            recording.events.get(0),
+            Some(WindowEvent::ScaleFactorChanged { scale_factor, .. })
+                if (*scale_factor - 1.8).abs() < f64::EPSILON
+        ));
+        assert!(matches!(
+            recording.events.get(1),
+            Some(WindowEvent::SurfaceResized(size)) if *size == PhysicalSize::new(640, 480)
+        ));
+        assert!(matches!(
+            recording.events.get(2),
+            Some(WindowEvent::RedrawRequested)
+        ));
+        assert!((recording.window.as_ref().unwrap().density_scale() - 1.8).abs() < f64::EPSILON);
+        assert!((recording.window.as_ref().unwrap().font_scale() - 1.0).abs() < f64::EPSILON);
+
+        recording.events.clear();
+
+        app.notify_surface_changed(
+            1usize as *mut c_void,
+            2usize as *mut c_void,
+            640,
+            480,
+            1.8,
+            1.25,
+        );
+        assert_eq!(
+            event_loop.pump_app_events(Some(Duration::ZERO), &mut recording),
+            PumpStatus::Continue
+        );
+
+        assert_eq!(recording.events.len(), 1);
+        assert!(matches!(
+            recording.events.first(),
+            Some(WindowEvent::RedrawRequested)
+        ));
+        assert!((recording.window.as_ref().unwrap().density_scale() - 1.8).abs() < f64::EPSILON);
+        assert!((recording.window.as_ref().unwrap().font_scale() - 1.25).abs() < f64::EPSILON);
     }
 
     #[test]

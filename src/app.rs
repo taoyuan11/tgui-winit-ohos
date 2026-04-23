@@ -53,7 +53,7 @@ pub(crate) struct SurfaceEvent {
     pub native_window: usize,
     pub width: u32,
     pub height: u32,
-    pub scale_factor: f64,
+    pub density_scale: f64,
     pub font_scale: f64,
 }
 
@@ -223,7 +223,7 @@ impl OhosApp {
         native_window: *mut c_void,
         width: u32,
         height: u32,
-        scale_factor: f64,
+        density_scale: f64,
         font_scale: f64,
     ) {
         self.push(HostEvent::SurfaceCreated(SurfaceEvent {
@@ -231,7 +231,7 @@ impl OhosApp {
             native_window: native_window as usize,
             width,
             height,
-            scale_factor,
+            density_scale,
             font_scale,
         }));
     }
@@ -242,7 +242,7 @@ impl OhosApp {
         native_window: *mut c_void,
         width: u32,
         height: u32,
-        scale_factor: f64,
+        density_scale: f64,
         font_scale: f64,
     ) {
         self.push(HostEvent::SurfaceChanged(SurfaceEvent {
@@ -250,7 +250,7 @@ impl OhosApp {
             native_window: native_window as usize,
             width,
             height,
-            scale_factor,
+            density_scale,
             font_scale,
         }));
     }

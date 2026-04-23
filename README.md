@@ -80,6 +80,11 @@ When forwarding surface lifecycle, also include the current screen density scale
 scale so Rust code can query them later through `WindowExtOhos::density_scale()` and
 `WindowExtOhos::font_scale()`.
 
+The generated `cargo-ohos-app` shell now reuses `notify_surface_changed` when the host updates
+either scale at runtime. `density_scale` changes surface as `WindowEvent::ScaleFactorChanged`,
+while `font_scale` refreshes the cached OHOS metric and schedules a redraw even if the physical
+surface size stays the same.
+
 `Window::request_redraw()` now records a redraw request and waits for a host frame callback
 before emitting `WindowEvent::RedrawRequested`, which keeps redraw pacing stable.
 

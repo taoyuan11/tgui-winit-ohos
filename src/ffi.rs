@@ -93,7 +93,7 @@ pub unsafe fn runtime_surface_created(
     native_window: *mut c_void,
     width: u32,
     height: u32,
-    scale_factor: f64,
+    density_scale: f64,
     font_scale: f64,
 ) {
     if let Some(runtime) = unsafe { runtime_ref(runtime) } {
@@ -102,7 +102,7 @@ pub unsafe fn runtime_surface_created(
             native_window,
             width,
             height,
-            scale_factor,
+            density_scale,
             font_scale,
         );
     }
@@ -117,7 +117,7 @@ pub unsafe fn runtime_surface_changed(
     native_window: *mut c_void,
     width: u32,
     height: u32,
-    scale_factor: f64,
+    density_scale: f64,
     font_scale: f64,
 ) {
     if let Some(runtime) = unsafe { runtime_ref(runtime) } {
@@ -126,7 +126,7 @@ pub unsafe fn runtime_surface_changed(
             native_window,
             width,
             height,
-            scale_factor,
+            density_scale,
             font_scale,
         );
     }
